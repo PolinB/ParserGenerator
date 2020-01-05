@@ -1,0 +1,21 @@
+grammar Calculator;
+
+@tokens {
+LP: "[(]";
+RP: "[)]";
+PLUS: "\\+" ;
+MINUS:  "-" ;
+MUL: "\\*";
+NUMBER: "[1-9]+[0-9]*";
+SPACE: "[ \n\r]+" -> skip;
+}
+
+@start = E;
+
+@states {
+E : T G;
+G : EPS | PLUS T G | MINUS T G;
+T : F H;
+H : EPS | MUL F H;
+F : NUMBER | MINUS F | LP E RP;
+}
