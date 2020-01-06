@@ -10,7 +10,7 @@ RP: "[)]";
 PLUS: "\\+" ;
 MINUS:  "-" ;
 MUL: "\\*";
-NUMBER: "[1-9]+[0-9]*";
+NUMBER: "[1-9]+[0-9]*|0";
 SPACE: "[ \n\r]+" -> skip;
 }
 
@@ -36,4 +36,5 @@ F returns [int v]
 PlusOp[int a, int b] returns [int v] : EPS #res.v = a + b;#;
 MinusOp[int a, int b] returns [int v] : EPS #res.v = a - b;#;
 MulOp[int a, int b] returns [int v] : EPS #res.v = a * b;#;
+
 }

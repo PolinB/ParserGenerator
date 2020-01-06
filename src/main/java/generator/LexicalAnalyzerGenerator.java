@@ -60,7 +60,7 @@ public class LexicalAnalyzerGenerator {
                 "\tprivate int currentPosition = 0;\n", 0));
 
         // constructor
-        sb.append(printString("\tpublic " + grammar.grammarName + "LexicalAnalyzer(String input) {\n" +
+        sb.append(printString("\tpublic " + grammar.grammarName + "LexicalAnalyzer(String input) throws Exception {\n" +
                 "\t\tinputSB = new StringBuilder(input);", 0));
 
         sb.append("\n");
@@ -93,14 +93,13 @@ public class LexicalAnalyzerGenerator {
                 "\t\treturn tokens.get(++currentPosition);\n" +
                 "\t}\n" +
                 "\n" +
-                "\tprivate void getTokens() {\n" +
+                "\tprivate void getTokens() throws Exception {\n" +
                 "\t\twhile (!(inputSB.length() == 0)) {\n" +
                 "\t\t\t" + grammar.grammarName + "Token t = findFirstToken();\n" +
                 "\t\t\tif (t != null) {\n" +
                 "\t\t\t\ttokens.add(t);\n" +
                 "\t\t\t} else if (!findFirstSkipToken()) {\n" +
-                "\t\t\t\tSystem.err.println(\"Not find matching with tokens.\");\n" +
-                "\t\t\t\tSystem.exit(-1);\n" +
+                "\t\t\t\tthrow new Exception(\"Not find matching with tokens.\");\n" +
                 "\t\t\t}\n" +
                 "\t\t}\n" +
                 "\t\ttokens.add(" + grammar.grammarName + "Token._END);\n" +

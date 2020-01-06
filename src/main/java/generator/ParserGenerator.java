@@ -91,13 +91,13 @@ public class ParserGenerator {
             sb.append("\n");
         }
 
-        sb.append(printString("private CalculatorLexicalAnalyzer lexicalAnalyzer;", 1));
+        sb.append(printString("private " + grammar.grammarName + "LexicalAnalyzer lexicalAnalyzer;", 1));
 
         sb.append("\n");
 
         // constructor
         sb.append(printString(
-                "\tpublic CalculatorParser(CalculatorLexicalAnalyzer lexicalAnalyzer) {\n" +
+                "\tpublic "+ grammar.grammarName +"Parser("+ grammar.grammarName +"LexicalAnalyzer lexicalAnalyzer) throws Exception {\n" +
                 "\t\tthis.lexicalAnalyzer = lexicalAnalyzer;\n" +
                 "\t\tbuildTree();\n" +
                 "\t}", 0));
@@ -105,11 +105,10 @@ public class ParserGenerator {
         sb.append("\n");
 
         sb.append(printString("" +
-                "\tprivate void buildTree() {\n" +
+                "\tprivate void buildTree() throws Exception {\n" +
                 "\t\ttree = _" + grammar.startState + "();\n" +
                 "\t\tif (lexicalAnalyzer.getCurrentToken() != " + grammar.grammarName + "Token._END) {\n" +
-                "\t\t\tSystem.err.println(\"Cur token is \" + lexicalAnalyzer.getCurrentToken().toString() + \" but expected END.\");\n" +
-                "\t\t\tSystem.exit(-1);\n" +
+                "\t\t\tthrow new Exception(\"Cur token is \" + lexicalAnalyzer.getCurrentToken().toString() + \" but expected END.\");\n" +
                 "\t\t}\n" +
                 "\t}",0));
 
@@ -133,10 +132,9 @@ public class ParserGenerator {
 
         // consume
         sb.append(printString("" +
-                "\tprivate void consume("+ grammar.grammarName +"Token token) {\n" +
+                "\tprivate void consume("+ grammar.grammarName +"Token token) throws Exception{\n" +
                 "\t\tif (lexicalAnalyzer.getCurrentToken() != token) {\n" +
-                "\t\t\tSystem.err.println(\"Expected another token.\");\n" +
-                "\t\t\tSystem.exit(-1);\n" +
+                "\t\t\tthrow new Exception(\"Expected another token.\");\n" +
                 "\t\t}\n" +
                 "\t}", 0));
 
@@ -170,7 +168,7 @@ public class ParserGenerator {
         //existEpsilonInRules = false;
         StringBuilder sb = new StringBuilder();
 
-        sb.append(printString("private Node_" + s.getName() + " _" + s.getName() + "(" + printParameters(s.getParameters()) + ") {", 1));
+        sb.append(printString("private Node_" + s.getName() + " _" + s.getName() + "(" + printParameters(s.getParameters()) + ") throws Exception {", 1));
         sb.append(printString("Node_" + s.getName() + " res = new Node_" + s.getName() + "();", 2));
         sb.append(printString("switch (lexicalAnalyzer.getCurrentToken()) {", 2));
 
@@ -178,16 +176,11 @@ public class ParserGenerator {
             sb.append(printRule(rule, s));
         }
 
-        /*if (existEpsilonInRules) {
-            sb.append(printFollowCase(s));
-        }*/
-
         sb.append(printString("default : ", 3));
-        sb.append(printString("System.err.println(\"Unexpected token.\");", 4));
-        sb.append(printString("System.exit(-1);", 4));
+        sb.append(printString("throw new Exception(\"Unexpected token.\");", 4));
 
         sb.append(printString("}", 2));
-        sb.append(printString("return res;", 2));
+        //sb.append(printString("return res;", 2));
         sb.append(printString("}", 1));
         return sb;
     }
@@ -222,9 +215,6 @@ public class ParserGenerator {
     private StringBuilder printRule(Rule rule, State s) {
         StringBuilder sb = new StringBuilder();
         HashSet<String> first = grammar.firstForRule(rule);
-        /*if (first.contains("EPS")) {
-            existEpsilonInRules = true;
-        }*/
         boolean containsEps = false;
         for (String token : first) {
             if (!token.equals("EPS")) {
@@ -243,10 +233,6 @@ public class ParserGenerator {
         int index = 0;
         for (int i = 0; i < rule.items.size(); ++i) {
             String item = rule.items.get(i);
-            /*if (item.equals("EPS")) {
-                sb.append(printFollowCase(s, rule.actions.get(i)));
-                return sb;
-            }*/
             if (grammar.tokenItems.containsKey(item)) {
                 sb.append(printString("consume(" + grammar.grammarName + "Token." + item +");", 4));
                 sb.append(printString("res.addChild(new Node(\"" + item + "\"));" , 4));

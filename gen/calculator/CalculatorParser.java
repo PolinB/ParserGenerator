@@ -102,16 +102,15 @@ public class CalculatorParser {
 
 	private CalculatorLexicalAnalyzer lexicalAnalyzer;
 
-	public CalculatorParser(CalculatorLexicalAnalyzer lexicalAnalyzer) {
+	public CalculatorParser(CalculatorLexicalAnalyzer lexicalAnalyzer) throws Exception {
 		this.lexicalAnalyzer = lexicalAnalyzer;
 		buildTree();
 	}
 
-	private void buildTree() {
+	private void buildTree() throws Exception {
 		tree = _E();
 		if (lexicalAnalyzer.getCurrentToken() != CalculatorToken._END) {
-			System.err.println("Cur token is " + lexicalAnalyzer.getCurrentToken().toString() + " but expected END.");
-			System.exit(-1);
+			throw new Exception("Cur token is " + lexicalAnalyzer.getCurrentToken().toString() + " but expected END.");
 		}
 	}
 
@@ -123,14 +122,13 @@ public class CalculatorParser {
 		return ((Node_E)tree).v;
 	}
 
-	private void consume(CalculatorToken token) {
+	private void consume(CalculatorToken token) throws Exception{
 		if (lexicalAnalyzer.getCurrentToken() != token) {
-			System.err.println("Expected another token.");
-			System.exit(-1);
+			throw new Exception("Expected another token.");
 		}
 	}
 
-	private Node_MinusOp _MinusOp(int a, int b) {
+	private Node_MinusOp _MinusOp(int a, int b) throws Exception {
 		Node_MinusOp res = new Node_MinusOp();
 		switch (lexicalAnalyzer.getCurrentToken()) {
 			case _END :
@@ -142,13 +140,11 @@ public class CalculatorParser {
 				return res;
 			}
 			default : 
-				System.err.println("Unexpected token.");
-				System.exit(-1);
+				throw new Exception("Unexpected token.");
 		}
-		return res;
 	}
 
-	private Node_T _T() {
+	private Node_T _T() throws Exception {
 		Node_T res = new Node_T();
 		switch (lexicalAnalyzer.getCurrentToken()) {
 			case NUMBER :
@@ -164,13 +160,11 @@ public class CalculatorParser {
 				return res;
 			}
 			default : 
-				System.err.println("Unexpected token.");
-				System.exit(-1);
+				throw new Exception("Unexpected token.");
 		}
-		return res;
 	}
 
-	private Node_E _E() {
+	private Node_E _E() throws Exception {
 		Node_E res = new Node_E();
 		switch (lexicalAnalyzer.getCurrentToken()) {
 			case NUMBER :
@@ -186,13 +180,11 @@ public class CalculatorParser {
 				return res;
 			}
 			default : 
-				System.err.println("Unexpected token.");
-				System.exit(-1);
+				throw new Exception("Unexpected token.");
 		}
-		return res;
 	}
 
-	private Node_F _F() {
+	private Node_F _F() throws Exception {
 		Node_F res = new Node_F();
 		switch (lexicalAnalyzer.getCurrentToken()) {
 			case NUMBER :
@@ -230,13 +222,11 @@ public class CalculatorParser {
 				return res;
 			}
 			default : 
-				System.err.println("Unexpected token.");
-				System.exit(-1);
+				throw new Exception("Unexpected token.");
 		}
-		return res;
 	}
 
-	private Node_MulOp _MulOp(int a, int b) {
+	private Node_MulOp _MulOp(int a, int b) throws Exception {
 		Node_MulOp res = new Node_MulOp();
 		switch (lexicalAnalyzer.getCurrentToken()) {
 			case _END :
@@ -249,13 +239,11 @@ public class CalculatorParser {
 				return res;
 			}
 			default : 
-				System.err.println("Unexpected token.");
-				System.exit(-1);
+				throw new Exception("Unexpected token.");
 		}
-		return res;
 	}
 
-	private Node_G _G(int a) {
+	private Node_G _G(int a) throws Exception {
 		Node_G res = new Node_G();
 		switch (lexicalAnalyzer.getCurrentToken()) {
 			case _END :
@@ -299,13 +287,11 @@ public class CalculatorParser {
 				return res;
 			}
 			default : 
-				System.err.println("Unexpected token.");
-				System.exit(-1);
+				throw new Exception("Unexpected token.");
 		}
-		return res;
 	}
 
-	private Node_PlusOp _PlusOp(int a, int b) {
+	private Node_PlusOp _PlusOp(int a, int b) throws Exception {
 		Node_PlusOp res = new Node_PlusOp();
 		switch (lexicalAnalyzer.getCurrentToken()) {
 			case _END :
@@ -317,13 +303,11 @@ public class CalculatorParser {
 				return res;
 			}
 			default : 
-				System.err.println("Unexpected token.");
-				System.exit(-1);
+				throw new Exception("Unexpected token.");
 		}
-		return res;
 	}
 
-	private Node_H _H(int a) {
+	private Node_H _H(int a) throws Exception {
 		Node_H res = new Node_H();
 		switch (lexicalAnalyzer.getCurrentToken()) {
 			case _END :
@@ -352,10 +336,8 @@ public class CalculatorParser {
 				return res;
 			}
 			default : 
-				System.err.println("Unexpected token.");
-				System.exit(-1);
+				throw new Exception("Unexpected token.");
 		}
-		return res;
 	}
 
 }

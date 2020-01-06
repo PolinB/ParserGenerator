@@ -1,32 +1,35 @@
-package calculator;
+package functioninpascal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class CalculatorLexicalAnalyzer {
+public class FunctionInPascalLexicalAnalyzer {
 	private StringBuilder inputSB;
 	private List<TokenItem> tokenPatterns = new ArrayList<>();
 	private List<TokenItem> skipTokenPatterns = new ArrayList<>();
-	private List<CalculatorToken> tokens = new ArrayList<>();
+	private List<FunctionInPascalToken> tokens = new ArrayList<>();
 	private List<String> tokensToString = new ArrayList<>();
 	private int currentPosition = 0;
 
-	public CalculatorLexicalAnalyzer(String input) throws Exception {
+	public FunctionInPascalLexicalAnalyzer(String input) throws Exception {
 		inputSB = new StringBuilder(input);
 
-		tokenPatterns.add(new TokenItem(CalculatorToken.LP,"[(]"));
-		tokenPatterns.add(new TokenItem(CalculatorToken.RP,"[)]"));
-		tokenPatterns.add(new TokenItem(CalculatorToken.PLUS,"\\+"));
-		tokenPatterns.add(new TokenItem(CalculatorToken.MINUS,"-"));
-		tokenPatterns.add(new TokenItem(CalculatorToken.MUL,"\\*"));
-		tokenPatterns.add(new TokenItem(CalculatorToken.NUMBER,"[1-9]+[0-9]*|0"));
+		tokenPatterns.add(new TokenItem(FunctionInPascalToken.FUNCTION,"function"));
+		tokenPatterns.add(new TokenItem(FunctionInPascalToken.PROCEDURE,"procedure"));
+		tokenPatterns.add(new TokenItem(FunctionInPascalToken.LP,"\\("));
+		tokenPatterns.add(new TokenItem(FunctionInPascalToken.RP,"\\)"));
+		tokenPatterns.add(new TokenItem(FunctionInPascalToken.COMMA,","));
+		tokenPatterns.add(new TokenItem(FunctionInPascalToken.COLON,":"));
+		tokenPatterns.add(new TokenItem(FunctionInPascalToken.SEMICOLON,";"));
+		tokenPatterns.add(new TokenItem(FunctionInPascalToken.TYPE,"integer|real|boolean|char|string"));
+		tokenPatterns.add(new TokenItem(FunctionInPascalToken.NAME,"[a-zA-Z][a-zA-Z0-9_]*"));
 
-		skipTokenPatterns.add(new TokenItem(CalculatorToken.SPACE,"[ \n\r]+"));
+		skipTokenPatterns.add(new TokenItem(FunctionInPascalToken.SPACE,"[ \n\r]+"));
 		getTokens();
 	}
 
-	public CalculatorToken getCurrentToken() {
+	public FunctionInPascalToken getCurrentToken() {
 		return tokens.get(currentPosition);
  	}
 
@@ -34,20 +37,20 @@ public class CalculatorLexicalAnalyzer {
 		return tokensToString.get(currentPosition);
 	}
 
-	public CalculatorToken getNextToken() {
+	public FunctionInPascalToken getNextToken() {
 		return tokens.get(++currentPosition);
 	}
 
 	private void getTokens() throws Exception {
 		while (!(inputSB.length() == 0)) {
-			CalculatorToken t = findFirstToken();
+			FunctionInPascalToken t = findFirstToken();
 			if (t != null) {
 				tokens.add(t);
 			} else if (!findFirstSkipToken()) {
 				throw new Exception("Not find matching with tokens.");
 			}
 		}
-		tokens.add(CalculatorToken._END);
+		tokens.add(FunctionInPascalToken._END);
 	}
 
 	private boolean findFirstSkipToken() {
@@ -61,7 +64,7 @@ public class CalculatorLexicalAnalyzer {
 		return false;
 	}
 
-	private CalculatorToken findFirstToken() {
+	private FunctionInPascalToken findFirstToken() {
 		for (TokenItem item : tokenPatterns) {
 			Matcher m = item.pattern.matcher(inputSB.toString());
 			if (m.lookingAt()) {
@@ -74,9 +77,9 @@ public class CalculatorLexicalAnalyzer {
 	}
 
 	private static class TokenItem {
-		CalculatorToken token;
+		FunctionInPascalToken token;
 		Pattern pattern;
-		TokenItem(CalculatorToken token, String s) {
+		TokenItem(FunctionInPascalToken token, String s) {
 			this.token = token;
 			pattern = Pattern.compile(s);
 		}
