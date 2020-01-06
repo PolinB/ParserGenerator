@@ -142,6 +142,16 @@ public interface GrammarForGenerateListener extends ParseTreeListener {
 	 */
 	void exitParameters_state(GrammarForGenerateParser.Parameters_stateContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link GrammarForGenerateParser#returns_state}.
+	 * @param ctx the parse tree
+	 */
+	void enterReturns_state(GrammarForGenerateParser.Returns_stateContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link GrammarForGenerateParser#returns_state}.
+	 * @param ctx the parse tree
+	 */
+	void exitReturns_state(GrammarForGenerateParser.Returns_stateContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link GrammarForGenerateParser#rule_line}.
 	 * @param ctx the parse tree
 	 */

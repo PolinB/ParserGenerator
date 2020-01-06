@@ -8,6 +8,7 @@ import java.util.Set;
 public class State {
     private String name;
     private List<String> parameters = new ArrayList<>();
+    private List<String> returns = new ArrayList<>();
     public List<Rule> rules = new ArrayList<>();
     private Set<String> first = new HashSet<>();
     private Set<String> follow = new HashSet<>();
@@ -24,6 +25,11 @@ public class State {
     public void addParameter(String type, String name) {
         String res = type + " " + name;
         parameters.add(res);
+    }
+
+    public void addReturn(String type, String name) {
+        String res = type + " " + name;
+        returns.add(res);
     }
 
     public void addRule(Rule r) {
@@ -64,5 +70,9 @@ public class State {
 
     public List<String> getParameters() {
         return parameters;
+    }
+
+    public List<String> getReturns() {
+        return returns;
     }
 }

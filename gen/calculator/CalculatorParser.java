@@ -5,6 +5,7 @@ import java.util.List;
 import java.lang.StringBuilder;
 
 public class CalculatorParser {
+	public Node tree;
 	public static class Node {
 		private String name;
 		private List<Node> children = new ArrayList<>();
@@ -43,79 +44,101 @@ public class CalculatorParser {
 		}
 	}
 
+	public class Node_MinusOp extends Node {
+		Node_MinusOp() {
+			super("MinusOp");
+		}
+		public int v;
+	}
+
 	public class Node_T extends Node {
 		Node_T() {
 			super("T");
 		}
-		public int z;
+		public int v;
 	}
 
 	public class Node_E extends Node {
 		Node_E() {
 			super("E");
 		}
-		public int x;
+		public int v;
 	}
 
 	public class Node_F extends Node {
 		Node_F() {
 			super("F");
 		}
+		public int v;
+	}
+
+	public class Node_MulOp extends Node {
+		Node_MulOp() {
+			super("MulOp");
+		}
+		public int v;
 	}
 
 	public class Node_G extends Node {
 		Node_G() {
 			super("G");
 		}
-		public int y;
-		public long k;
+		public int v;
+	}
+
+	public class Node_PlusOp extends Node {
+		Node_PlusOp() {
+			super("PlusOp");
+		}
+		public int v;
 	}
 
 	public class Node_H extends Node {
 		Node_H() {
 			super("H");
 		}
-		public int f;
-		public int e;
+		public int v;
 	}
 
 	private CalculatorLexicalAnalyzer lexicalAnalyzer;
 
 	public CalculatorParser(CalculatorLexicalAnalyzer lexicalAnalyzer) {
 		this.lexicalAnalyzer = lexicalAnalyzer;
-		Node tree = buildTree();
-		System.out.println(tree.treeToString(new ArrayList<>()));
+		buildTree();
 	}
 
-	private Node buildTree() {
-		Node res = _E();
+	private void buildTree() {
+		tree = _E();
 		if (lexicalAnalyzer.getCurrentToken() != CalculatorToken._END) {
 			System.err.println("Cur token is " + lexicalAnalyzer.getCurrentToken().toString() + " but expected END.");
 			System.exit(-1);
 		}
-		return res;
+	}
+
+	public void printTree() {
+		System.out.println(tree.treeToString(new ArrayList<>()));
+	}
+
+	public int getv() {
+		return ((Node_E)tree).v;
 	}
 
 	private void consume(CalculatorToken token) {
 		if (lexicalAnalyzer.getCurrentToken() != token) {
 			System.err.println("Expected another token.");
 			System.exit(-1);
-		} else {
-			lexicalAnalyzer.getNextToken();
 		}
 	}
 
-	private Node _T() {
-		Node res = new Node_T();
+	private Node_MinusOp _MinusOp(int a, int b) {
+		Node_MinusOp res = new Node_MinusOp();
 		switch (lexicalAnalyzer.getCurrentToken()) {
-			case NUMBER :
-			case LP :
+			case _END :
+			case RP :
+			case PLUS :
 			case MINUS :
 			{
-				Node t0 = _F();
-				res.addChild(t0);
-				Node t1 = _H();
-				res.addChild(t1);
+				res.v = a - b;
 				return res;
 			}
 			default : 
@@ -125,17 +148,19 @@ public class CalculatorParser {
 		return res;
 	}
 
-	private Node _E() {
-		Node res = new Node_E();
+	private Node_T _T() {
+		Node_T res = new Node_T();
 		switch (lexicalAnalyzer.getCurrentToken()) {
 			case NUMBER :
 			case LP :
 			case MINUS :
 			{
-				Node t0 = _T();
-				res.addChild(t0);
-				Node t1 = _G();
-				res.addChild(t1);
+				Node_F n0 = _F();
+				res.addChild(n0);
+				int u = n0.v;
+				Node_H n1 = _H(u);
+				res.addChild(n1);
+				res.v = n1.v;
 				return res;
 			}
 			default : 
@@ -145,31 +170,63 @@ public class CalculatorParser {
 		return res;
 	}
 
-	private Node _F() {
-		Node res = new Node_F();
+	private Node_E _E() {
+		Node_E res = new Node_E();
+		switch (lexicalAnalyzer.getCurrentToken()) {
+			case NUMBER :
+			case LP :
+			case MINUS :
+			{
+				Node_T n0 = _T();
+				res.addChild(n0);
+				int u = n0.v;
+				Node_G n1 = _G(u);
+				res.addChild(n1);
+				res.v = n1.v;
+				return res;
+			}
+			default : 
+				System.err.println("Unexpected token.");
+				System.exit(-1);
+		}
+		return res;
+	}
+
+	private Node_F _F() {
+		Node_F res = new Node_F();
 		switch (lexicalAnalyzer.getCurrentToken()) {
 			case NUMBER :
 			{
 				consume(CalculatorToken.NUMBER);
 				res.addChild(new Node("NUMBER"));
+				res.v = Integer.parseInt(lexicalAnalyzer.getCurrentTokenString());
+				lexicalAnalyzer.getNextToken();
 				return res;
 			}
 			case MINUS :
 			{
 				consume(CalculatorToken.MINUS);
 				res.addChild(new Node("MINUS"));
-				Node t0 = _F();
-				res.addChild(t0);
+				
+				lexicalAnalyzer.getNextToken();
+				Node_F n0 = _F();
+				res.addChild(n0);
+				res.v = -(n0.v);
 				return res;
 			}
 			case LP :
 			{
 				consume(CalculatorToken.LP);
 				res.addChild(new Node("LP"));
-				Node t0 = _E();
-				res.addChild(t0);
+				
+				lexicalAnalyzer.getNextToken();
+				Node_E n0 = _E();
+				res.addChild(n0);
+				res.v = n0.v;
 				consume(CalculatorToken.RP);
 				res.addChild(new Node("RP"));
+				
+				lexicalAnalyzer.getNextToken();
 				return res;
 			}
 			default : 
@@ -179,33 +236,66 @@ public class CalculatorParser {
 		return res;
 	}
 
-	private Node _G() {
-		Node res = new Node_G();
+	private Node_MulOp _MulOp(int a, int b) {
+		Node_MulOp res = new Node_MulOp();
 		switch (lexicalAnalyzer.getCurrentToken()) {
+			case _END :
+			case MUL :
+			case RP :
+			case PLUS :
+			case MINUS :
+			{
+				res.v = a * b;
+				return res;
+			}
+			default : 
+				System.err.println("Unexpected token.");
+				System.exit(-1);
+		}
+		return res;
+	}
+
+	private Node_G _G(int a) {
+		Node_G res = new Node_G();
+		switch (lexicalAnalyzer.getCurrentToken()) {
+			case _END :
+			case RP :
+			{
+				res.v = a;
+				return res;
+			}
 			case PLUS :
 			{
 				consume(CalculatorToken.PLUS);
 				res.addChild(new Node("PLUS"));
-				Node t0 = _T();
-				res.addChild(t0);
-				Node t1 = _G();
-				res.addChild(t1);
+				
+				lexicalAnalyzer.getNextToken();
+				Node_T n0 = _T();
+				res.addChild(n0);
+				int u = n0.v;
+				Node_PlusOp n1 = _PlusOp(a, u);
+				res.addChild(n1);
+				int acc = n1.v;
+				Node_G n2 = _G(acc);
+				res.addChild(n2);
+				res.v = n2.v;
 				return res;
 			}
 			case MINUS :
 			{
 				consume(CalculatorToken.MINUS);
 				res.addChild(new Node("MINUS"));
-				Node t0 = _T();
-				res.addChild(t0);
-				Node t1 = _G();
-				res.addChild(t1);
-				return res;
-			}
-			case _END :
-			case RP :
-			{
-				res.addChild(new Node("EPS"));
+				
+				lexicalAnalyzer.getNextToken();
+				Node_T n0 = _T();
+				res.addChild(n0);
+				int u = n0.v;
+				Node_MinusOp n1 = _MinusOp(a, u);
+				res.addChild(n1);
+				int acc = n1.v;
+				Node_G n2 = _G(acc);
+				res.addChild(n2);
+				res.v = n2.v;
 				return res;
 			}
 			default : 
@@ -215,25 +305,50 @@ public class CalculatorParser {
 		return res;
 	}
 
-	private Node _H() {
-		Node res = new Node_H();
+	private Node_PlusOp _PlusOp(int a, int b) {
+		Node_PlusOp res = new Node_PlusOp();
 		switch (lexicalAnalyzer.getCurrentToken()) {
-			case MUL :
-			{
-				consume(CalculatorToken.MUL);
-				res.addChild(new Node("MUL"));
-				Node t0 = _F();
-				res.addChild(t0);
-				Node t1 = _H();
-				res.addChild(t1);
-				return res;
-			}
 			case _END :
 			case RP :
 			case PLUS :
 			case MINUS :
 			{
-				res.addChild(new Node("EPS"));
+				res.v = a + b;
+				return res;
+			}
+			default : 
+				System.err.println("Unexpected token.");
+				System.exit(-1);
+		}
+		return res;
+	}
+
+	private Node_H _H(int a) {
+		Node_H res = new Node_H();
+		switch (lexicalAnalyzer.getCurrentToken()) {
+			case _END :
+			case RP :
+			case PLUS :
+			case MINUS :
+			{
+				res.v = a;
+				return res;
+			}
+			case MUL :
+			{
+				consume(CalculatorToken.MUL);
+				res.addChild(new Node("MUL"));
+				
+				lexicalAnalyzer.getNextToken();
+				Node_F n0 = _F();
+				res.addChild(n0);
+				int u = n0.v;
+				Node_MulOp n1 = _MulOp(a, u);
+				res.addChild(n1);
+				int acc = n1.v;
+				Node_H n2 = _H(acc);
+				res.addChild(n2);
+				res.v = n2.v;
 				return res;
 			}
 			default : 

@@ -93,6 +93,12 @@ public interface GrammarForGenerateVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitParameters_state(GrammarForGenerateParser.Parameters_stateContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link GrammarForGenerateParser#returns_state}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitReturns_state(GrammarForGenerateParser.Returns_stateContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link GrammarForGenerateParser#rule_line}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

@@ -9,11 +9,13 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 public class ParserGenerator {
     private Grammar grammar;
-    private boolean existEpsilonInRules = false;
+    //private boolean existEpsilonInRules = false;
 
     ParserGenerator(Grammar grammar) throws IOException {
         this.grammar = grammar;
@@ -41,8 +43,9 @@ public class ParserGenerator {
 
         sb.append("\n");
         // class
-        sb.append(printString(
+        sb.append(printString("" +
                 "public class " + grammar.grammarName + "Parser {\n" +
+                "\tpublic Node tree;\n" +
                 "\tpublic static class Node {\n" +
                 "\t\tprivate String name;\n" +
                 "\t\tprivate List<Node> children = new ArrayList<>();\n" +
@@ -96,21 +99,35 @@ public class ParserGenerator {
         sb.append(printString(
                 "\tpublic CalculatorParser(CalculatorLexicalAnalyzer lexicalAnalyzer) {\n" +
                 "\t\tthis.lexicalAnalyzer = lexicalAnalyzer;\n" +
-                "\t\tNode tree = buildTree();\n" +
-                "\t\tSystem.out.println(tree.treeToString(new ArrayList<>()));\n" +
+                "\t\tbuildTree();\n" +
                 "\t}", 0));
 
         sb.append("\n");
 
         sb.append(printString("" +
-                "\tprivate Node buildTree() {\n" +
-                "\t\tNode res = _" + grammar.startState + "();\n" +
+                "\tprivate void buildTree() {\n" +
+                "\t\ttree = _" + grammar.startState + "();\n" +
                 "\t\tif (lexicalAnalyzer.getCurrentToken() != " + grammar.grammarName + "Token._END) {\n" +
                 "\t\t\tSystem.err.println(\"Cur token is \" + lexicalAnalyzer.getCurrentToken().toString() + \" but expected END.\");\n" +
                 "\t\t\tSystem.exit(-1);\n" +
                 "\t\t}\n" +
-                "\t\treturn res;\n" +
                 "\t}",0));
+
+        sb.append("\n");
+
+        sb.append(printString("" +
+                "\tpublic void printTree() {\n" +
+                "\t\tSystem.out.println(tree.treeToString(new ArrayList<>()));\n" +
+                "\t}", 0));
+
+        sb.append("\n");
+
+        for (String returnStr : grammar.states.get(grammar.startState).getReturns()) {
+            String[] arg = returnStr.split(" ");
+            sb.append(printString("public " + arg[0] + " get" + arg[1] + "() {", 1));
+            sb.append(printString("return ((Node_E)tree)." + arg[1] + ";", 2));
+            sb.append(printString("}", 1));
+        }
 
         sb.append("\n");
 
@@ -120,8 +137,6 @@ public class ParserGenerator {
                 "\t\tif (lexicalAnalyzer.getCurrentToken() != token) {\n" +
                 "\t\t\tSystem.err.println(\"Expected another token.\");\n" +
                 "\t\t\tSystem.exit(-1);\n" +
-                "\t\t} else {\n" +
-                "\t\t\tlexicalAnalyzer.getNextToken();\n" +
                 "\t\t}\n" +
                 "\t}", 0));
 
@@ -144,7 +159,7 @@ public class ParserGenerator {
         sb.append(printString("Node_" + s.getName() + "() {", 2));
         sb.append(printString("super(\"" + s.getName() + "\");", 3));
         sb.append(printString("}", 2));
-        for (String str : s.getParameters()) {
+        for (String str : s.getReturns()) {
             sb.append(printString("public " + str + ";", 2));
         }
         sb.append(printString("}", 1));
@@ -152,20 +167,20 @@ public class ParserGenerator {
     }
 
     private StringBuilder printState(State s) {
-        existEpsilonInRules = false;
+        //existEpsilonInRules = false;
         StringBuilder sb = new StringBuilder();
 
-        sb.append(printString("private Node _" + s.getName() + "() {", 1));
-        sb.append(printString("Node res = new Node_" + s.getName() + "();", 2));
+        sb.append(printString("private Node_" + s.getName() + " _" + s.getName() + "(" + printParameters(s.getParameters()) + ") {", 1));
+        sb.append(printString("Node_" + s.getName() + " res = new Node_" + s.getName() + "();", 2));
         sb.append(printString("switch (lexicalAnalyzer.getCurrentToken()) {", 2));
 
         for (Rule rule : s.rules) {
-            sb.append(printRule(rule));
+            sb.append(printRule(rule, s));
         }
 
-        if (existEpsilonInRules) {
+        /*if (existEpsilonInRules) {
             sb.append(printFollowCase(s));
-        }
+        }*/
 
         sb.append(printString("default : ", 3));
         sb.append(printString("System.err.println(\"Unexpected token.\");", 4));
@@ -177,7 +192,18 @@ public class ParserGenerator {
         return sb;
     }
 
-    private StringBuilder printFollowCase(State s) {
+    private String printParameters(List<String> parameters) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < parameters.size(); ++i) {
+            if (i != 0) {
+                sb.append(", ");
+            }
+            sb.append(parameters.get(i));
+        }
+        return sb.toString();
+    }
+
+    private StringBuilder printFollowCase(State s, String action) {
         StringBuilder sb = new StringBuilder();
         for (String item : s.getFollow()) {
             sb.append(printString("case " + item + " :", 3));
@@ -186,37 +212,50 @@ public class ParserGenerator {
             return sb;
         }
         sb.append(printString("{", 3));
-        sb.append(printString("res.addChild(new Node(\"EPS\"));", 4));
+        //sb.append(printString("res.addChild(new Node(\"EPS\"));", 4));
+        sb.append(printString(action, 4));
         sb.append(printString("return res;", 4));
         sb.append(printString("}", 3));
         return sb;
     }
 
-    private StringBuilder printRule(Rule rule) {
+    private StringBuilder printRule(Rule rule, State s) {
         StringBuilder sb = new StringBuilder();
         HashSet<String> first = grammar.firstForRule(rule);
-        if (first.contains("EPS")) {
+        /*if (first.contains("EPS")) {
             existEpsilonInRules = true;
-        }
+        }*/
+        boolean containsEps = false;
         for (String token : first) {
             if (!token.equals("EPS")) {
                 sb.append(printString("case " + token + " :", 3));
+            } else {
+                containsEps = true;
+                sb.append(printFollowCase(s, rule.actions.get(0)));
             }
         }
-        if (sb.length() == 0) {
+        if (sb.length() == 0 || containsEps) {
             return sb;
         }
 
         sb.append(printString("{", 3));
 
         int index = 0;
-        for (String item : rule.items) {
+        for (int i = 0; i < rule.items.size(); ++i) {
+            String item = rule.items.get(i);
+            /*if (item.equals("EPS")) {
+                sb.append(printFollowCase(s, rule.actions.get(i)));
+                return sb;
+            }*/
             if (grammar.tokenItems.containsKey(item)) {
                 sb.append(printString("consume(" + grammar.grammarName + "Token." + item +");", 4));
                 sb.append(printString("res.addChild(new Node(\"" + item + "\"));" , 4));
+                sb.append(printString(rule.actions.get(i), 4));
+                sb.append(printString("lexicalAnalyzer.getNextToken();", 4));
             } else if (grammar.states.containsKey(item)) {
-                sb.append(printString("Node t" + index + " = _" + item + "();", 4));
-                sb.append(printString("res.addChild(t" + index +");", 4));
+                sb.append(printString("Node_" + item + " n" + index + " = _" + item + "(" + rule.parameters.get(i) + ");", 4));
+                sb.append(printString("res.addChild(n" + index +");", 4));
+                sb.append(printString(rule.actions.get(i), 4));
                 ++index;
             } else {
                 System.err.println("Not in token & states. " + item);

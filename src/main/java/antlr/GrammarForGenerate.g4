@@ -50,11 +50,14 @@ state_line returns [State state]
 @init {
     $state = new State();
 }: NAME {$state.setName($NAME.text);}
-('[' parameters_state[$state] ']')?
+('[' parameters_state[$state] ']')? ('returns' '[' returns_state[$state] ']')?
 ':' r1=rule_line {$state.addRule($r1.r);} ('|' r2=rule_line {$state.addRule($r2.r);})* ';';
 
 parameters_state[State state] : type1=NAME name1=NAME {$state.addParameter($type1.text, $name1.text);}
                                (',' type2=NAME name2=NAME {$state.addParameter($type2.text, $name2.text);})*;
+
+returns_state[State state] : type1=NAME name1=NAME {$state.addReturn($type1.text, $name1.text);}
+                               (',' type2=NAME name2=NAME {$state.addReturn($type2.text, $name2.text);})*;
 
 rule_line returns [Rule r] locals [StringBuilder parameters, StringBuilder code]
 @init {
@@ -62,7 +65,9 @@ rule_line returns [Rule r] locals [StringBuilder parameters, StringBuilder code]
     $parameters = new StringBuilder();
     $code = new StringBuilder();
 }: (NAME (parameters_rule[$parameters])? (code_block[$code])?
-    {$r.addItem($NAME.text, $parameters.toString(), $code.toString());})+;
+    {$r.addItem($NAME.text, $parameters.toString(), $code.toString());
+    $parameters = new StringBuilder();
+    $code = new StringBuilder();})+;
 
 parameters_rule[StringBuilder s] : '[' n1=NAME {$s.append($n1.text);} (',' n2=NAME {$s.append(", ").append($n2.text);})* ']';
 

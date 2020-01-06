@@ -176,6 +176,18 @@ public class GrammarForGenerateBaseListener implements GrammarForGenerateListene
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterReturns_state(GrammarForGenerateParser.Returns_stateContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitReturns_state(GrammarForGenerateParser.Returns_stateContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterRule_line(GrammarForGenerateParser.Rule_lineContext ctx) { }
 	/**
 	 * {@inheritDoc}
