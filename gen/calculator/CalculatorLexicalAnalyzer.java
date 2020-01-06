@@ -9,6 +9,7 @@ public class CalculatorLexicalAnalyzer {
 	private List<TokenItem> tokenPatterns = new ArrayList<>();
 	private List<TokenItem> skipTokenPatterns = new ArrayList<>();
 	private List<CalculatorToken> tokens = new ArrayList<>();
+	private List<String> tokensToString = new ArrayList<>();
 	private int currentPosition = 0;
 
 	public CalculatorLexicalAnalyzer(String input) {
@@ -24,9 +25,14 @@ public class CalculatorLexicalAnalyzer {
 		skipTokenPatterns.add(new TokenItem(CalculatorToken.SPACE,"[ \n\r]+"));
 		getTokens();
 	}
+
 	public CalculatorToken getCurrentToken() {
 		return tokens.get(currentPosition);
  	}
+
+	public String getCurrentTokenString() {
+		return tokensToString.get(currentPosition);
+	}
 
 	public CalculatorToken getNextToken() {
 		return tokens.get(++currentPosition);
@@ -60,6 +66,7 @@ public class CalculatorLexicalAnalyzer {
 		for (TokenItem item : tokenPatterns) {
 			Matcher m = item.pattern.matcher(inputSB.toString());
 			if (m.lookingAt()) {
+				tokensToString.add(inputSB.substring(0, m.end()));
 				inputSB.delete(0, m.end());
 				return item.token;
 			}

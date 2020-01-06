@@ -56,6 +56,7 @@ public class LexicalAnalyzerGenerator {
                 "\tprivate List<TokenItem> tokenPatterns = new ArrayList<>();\n" +
                 "\tprivate List<TokenItem> skipTokenPatterns = new ArrayList<>();\n" +
                 "\tprivate List<" + grammar.grammarName + "Token> tokens = new ArrayList<>();\n" +
+                "\tprivate List<String> tokensToString = new ArrayList<>();\n" +
                 "\tprivate int currentPosition = 0;\n", 0));
 
         // constructor
@@ -77,60 +78,66 @@ public class LexicalAnalyzerGenerator {
         sb.append(printString("getTokens();", 2));
         sb.append(printString("}", 1));
 
+        sb.append("\n");
         // methods
-        sb.append(printString(
+        sb.append(printString("" +
                 "\tpublic " + grammar.grammarName + "Token getCurrentToken() {\n" +
-                        "\t\treturn tokens.get(currentPosition);\n" +
-                        " \t}\n" +
-                        "\n" +
-                        "\tpublic " + grammar.grammarName + "Token getNextToken() {\n" +
-                        "\t\treturn tokens.get(++currentPosition);\n" +
-                        "\t}\n" +
-                        "\n" +
-                        "\tprivate void getTokens() {\n" +
-                        "\t\twhile (!(inputSB.length() == 0)) {\n" +
-                        "\t\t\t"+ grammar.grammarName +"Token t = findFirstToken();\n" +
-                        "\t\t\tif (t != null) {\n" +
-                        "\t\t\t\ttokens.add(t);\n" +
-                        "\t\t\t} else if (!findFirstSkipToken()) {\n" +
-                        "\t\t\t\tSystem.err.println(\"Not find matching with tokens.\");\n" +
-                        "\t\t\t\tSystem.exit(-1);\n" +
-                        "\t\t\t}\n" +
-                        "\t\t}\n" +
-                        "\t\ttokens.add("+ grammar.grammarName +"Token._END);\n" +
-                        "\t}\n" +
-                        "\n" +
-                        "\tprivate boolean findFirstSkipToken() {\n" +
-                        "\t\tfor (TokenItem item : skipTokenPatterns) {\n" +
-                        "\t\t\tMatcher m = item.pattern.matcher(inputSB.toString());\n" +
-                        "\t\t\tif (m.lookingAt()) {\n" +
-                        "\t\t\t\tinputSB.delete(0, m.end());\n" +
-                        "\t\t\t\treturn true;\n" +
-                        "\t\t\t}\n" +
-                        "\t\t}\n" +
-                        "\t\treturn false;\n" +
-                        "\t}\n" +
-                        "\n" +
-                        "\tprivate "+ grammar.grammarName +"Token findFirstToken() {\n" +
-                        "\t\tfor (TokenItem item : tokenPatterns) {\n" +
-                        "\t\t\tMatcher m = item.pattern.matcher(inputSB.toString());\n" +
-                        "\t\t\tif (m.lookingAt()) {\n" +
-                        "\t\t\t\tinputSB.delete(0, m.end());\n" +
-                        "\t\t\t\treturn item.token;\n" +
-                        "\t\t\t}\n" +
-                        "\t\t}\n" +
-                        "\t\treturn null;\n" +
-                        "\t}\n" +
-                        "\n" +
-                        "\tprivate static class TokenItem {\n" +
-                        "\t\t"+ grammar.grammarName +"Token token;\n" +
-                        "\t\tPattern pattern;\n" +
-                        "\t\tTokenItem("+ grammar.grammarName +"Token token, String s) {\n" +
-                        "\t\t\tthis.token = token;\n" +
-                        "\t\t\tpattern = Pattern.compile(s);\n" +
-                        "\t\t}\n" +
-                        "\t}\n" +
-                        "}", 0
+                "\t\treturn tokens.get(currentPosition);\n" +
+                " \t}\n" +
+                "\n" +
+                "\tpublic String getCurrentTokenString() {\n" +
+                "\t\treturn tokensToString.get(currentPosition);\n" +
+                "\t}\n" +
+                "\n" +
+                "\tpublic " + grammar.grammarName + "Token getNextToken() {\n" +
+                "\t\treturn tokens.get(++currentPosition);\n" +
+                "\t}\n" +
+                "\n" +
+                "\tprivate void getTokens() {\n" +
+                "\t\twhile (!(inputSB.length() == 0)) {\n" +
+                "\t\t\t" + grammar.grammarName + "Token t = findFirstToken();\n" +
+                "\t\t\tif (t != null) {\n" +
+                "\t\t\t\ttokens.add(t);\n" +
+                "\t\t\t} else if (!findFirstSkipToken()) {\n" +
+                "\t\t\t\tSystem.err.println(\"Not find matching with tokens.\");\n" +
+                "\t\t\t\tSystem.exit(-1);\n" +
+                "\t\t\t}\n" +
+                "\t\t}\n" +
+                "\t\ttokens.add(" + grammar.grammarName + "Token._END);\n" +
+                "\t}\n" +
+                "\n" +
+                "\tprivate boolean findFirstSkipToken() {\n" +
+                "\t\tfor (TokenItem item : skipTokenPatterns) {\n" +
+                "\t\t\tMatcher m = item.pattern.matcher(inputSB.toString());\n" +
+                "\t\t\tif (m.lookingAt()) {\n" +
+                "\t\t\t\tinputSB.delete(0, m.end());\n" +
+                "\t\t\t\treturn true;\n" +
+                "\t\t\t}\n" +
+                "\t\t}\n" +
+                "\t\treturn false;\n" +
+                "\t}\n" +
+                "\n" +
+                "\tprivate " + grammar.grammarName + "Token findFirstToken() {\n" +
+                "\t\tfor (TokenItem item : tokenPatterns) {\n" +
+                "\t\t\tMatcher m = item.pattern.matcher(inputSB.toString());\n" +
+                "\t\t\tif (m.lookingAt()) {\n" +
+                "\t\t\t\ttokensToString.add(inputSB.substring(0, m.end()));\n" +
+                "\t\t\t\tinputSB.delete(0, m.end());\n" +
+                "\t\t\t\treturn item.token;\n" +
+                "\t\t\t}\n" +
+                "\t\t}\n" +
+                "\t\treturn null;\n" +
+                "\t}\n" +
+                "\n" +
+                "\tprivate static class TokenItem {\n" +
+                "\t\t" + grammar.grammarName + "Token token;\n" +
+                "\t\tPattern pattern;\n" +
+                "\t\tTokenItem(" + grammar.grammarName + "Token token, String s) {\n" +
+                "\t\t\tthis.token = token;\n" +
+                "\t\t\tpattern = Pattern.compile(s);\n" +
+                "\t\t}\n" +
+                "\t}\n" +
+                "}", 0
         ));
         return sb;
     }

@@ -1,5 +1,9 @@
 grammar Calculator;
 
+@imp {
+import java.lang.StringBuilder;
+}
+
 @tokens {
 LP: "[(]";
 RP: "[)]";
@@ -13,9 +17,9 @@ SPACE: "[ \n\r]+" -> skip;
 @start = E;
 
 @states {
-E : T G;
-G : EPS | PLUS T G | MINUS T G;
-T : F H;
-H : EPS | MUL F H;
+E[int x] : T G;
+G[int y, long k] : EPS #k = 17;# | PLUS T [k, y] #k = y# G | MINUS T G;
+T[int z] : F H;
+H[int f, int e] : EPS | MUL F H;
 F : NUMBER | MINUS F | LP E RP;
 }

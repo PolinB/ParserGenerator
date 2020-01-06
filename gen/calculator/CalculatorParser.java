@@ -2,6 +2,7 @@ package calculator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.lang.StringBuilder;
 
 public class CalculatorParser {
 	public static class Node {
@@ -42,6 +43,42 @@ public class CalculatorParser {
 		}
 	}
 
+	public class Node_T extends Node {
+		Node_T() {
+			super("T");
+		}
+		public int z;
+	}
+
+	public class Node_E extends Node {
+		Node_E() {
+			super("E");
+		}
+		public int x;
+	}
+
+	public class Node_F extends Node {
+		Node_F() {
+			super("F");
+		}
+	}
+
+	public class Node_G extends Node {
+		Node_G() {
+			super("G");
+		}
+		public int y;
+		public long k;
+	}
+
+	public class Node_H extends Node {
+		Node_H() {
+			super("H");
+		}
+		public int f;
+		public int e;
+	}
+
 	private CalculatorLexicalAnalyzer lexicalAnalyzer;
 
 	public CalculatorParser(CalculatorLexicalAnalyzer lexicalAnalyzer) {
@@ -69,7 +106,7 @@ public class CalculatorParser {
 	}
 
 	private Node _T() {
-		Node res = new Node("T");
+		Node res = new Node_T();
 		switch (lexicalAnalyzer.getCurrentToken()) {
 			case NUMBER :
 			case LP :
@@ -89,7 +126,7 @@ public class CalculatorParser {
 	}
 
 	private Node _E() {
-		Node res = new Node("E");
+		Node res = new Node_E();
 		switch (lexicalAnalyzer.getCurrentToken()) {
 			case NUMBER :
 			case LP :
@@ -109,7 +146,7 @@ public class CalculatorParser {
 	}
 
 	private Node _F() {
-		Node res = new Node("F");
+		Node res = new Node_F();
 		switch (lexicalAnalyzer.getCurrentToken()) {
 			case NUMBER :
 			{
@@ -143,7 +180,7 @@ public class CalculatorParser {
 	}
 
 	private Node _G() {
-		Node res = new Node("G");
+		Node res = new Node_G();
 		switch (lexicalAnalyzer.getCurrentToken()) {
 			case PLUS :
 			{
@@ -179,7 +216,7 @@ public class CalculatorParser {
 	}
 
 	private Node _H() {
-		Node res = new Node("H");
+		Node res = new Node_H();
 		switch (lexicalAnalyzer.getCurrentToken()) {
 			case MUL :
 			{

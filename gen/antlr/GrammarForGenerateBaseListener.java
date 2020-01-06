@@ -56,6 +56,42 @@ public class GrammarForGenerateBaseListener implements GrammarForGenerateListene
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterImports(GrammarForGenerateParser.ImportsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitImports(GrammarForGenerateParser.ImportsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterImport_line(GrammarForGenerateParser.Import_lineContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitImport_line(GrammarForGenerateParser.Import_lineContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterImport_name(GrammarForGenerateParser.Import_nameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitImport_name(GrammarForGenerateParser.Import_nameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterTokens(GrammarForGenerateParser.TokensContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -128,6 +164,18 @@ public class GrammarForGenerateBaseListener implements GrammarForGenerateListene
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterParameters_state(GrammarForGenerateParser.Parameters_stateContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitParameters_state(GrammarForGenerateParser.Parameters_stateContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterRule_line(GrammarForGenerateParser.Rule_lineContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -135,6 +183,30 @@ public class GrammarForGenerateBaseListener implements GrammarForGenerateListene
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitRule_line(GrammarForGenerateParser.Rule_lineContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterParameters_rule(GrammarForGenerateParser.Parameters_ruleContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitParameters_rule(GrammarForGenerateParser.Parameters_ruleContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCode_block(GrammarForGenerateParser.Code_blockContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCode_block(GrammarForGenerateParser.Code_blockContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

@@ -10,11 +10,20 @@ start returns [Grammar g]
     $g = new Grammar();
 }: program[$g] EOF;
 
-program[Grammar g]: header[$g] tokens[$g] startState[$g] states[$g];
+program[Grammar g]: header[$g] imports[$g] tokens[$g] startState[$g] states[$g];
 
 header[Grammar g]: 'grammar' NAME ';' {
     $g.setName($NAME.text);
 };
+
+imports[Grammar g]: '@imp' '{' import_line[$g]* '}';
+
+import_line[Grammar g]: ('import' import_name {$g.addImport($import_name.name.toString());} ';');
+
+import_name returns[StringBuilder name]
+@init {
+$name = new StringBuilder();
+}: n1=NAME {$name.append($n1.text);} ('.' n2=NAME {$name.append('.').append($n2.text);})*;
 
 tokens[Grammar g]: '@tokens' '{' token_line[$g]* '}';
 
@@ -40,13 +49,30 @@ states[Grammar g]: '@states' '{' (state_line {$g.addState($state_line.state);})+
 state_line returns [State state]
 @init {
     $state = new State();
-}: NAME {$state.setName($NAME.text);} ':' r1=rule_line {$state.addRule($r1.r);} ('|' r2=rule_line {$state.addRule($r2.r);})* ';';
+}: NAME {$state.setName($NAME.text);}
+('[' parameters_state[$state] ']')?
+':' r1=rule_line {$state.addRule($r1.r);} ('|' r2=rule_line {$state.addRule($r2.r);})* ';';
 
-rule_line returns [Rule r]
+parameters_state[State state] : type1=NAME name1=NAME {$state.addParameter($type1.text, $name1.text);}
+                               (',' type2=NAME name2=NAME {$state.addParameter($type2.text, $name2.text);})*;
+
+rule_line returns [Rule r] locals [StringBuilder parameters, StringBuilder code]
 @init {
     $r = new Rule();
-}: (NAME {$r.addItem($NAME.text);})+;
+    $parameters = new StringBuilder();
+    $code = new StringBuilder();
+}: (NAME (parameters_rule[$parameters])? (code_block[$code])?
+    {$r.addItem($NAME.text, $parameters.toString(), $code.toString());})+;
 
+parameters_rule[StringBuilder s] : '[' n1=NAME {$s.append($n1.text);} (',' n2=NAME {$s.append(", ").append($n2.text);})* ']';
+
+code_block[StringBuilder s] : CODE_TEXT {
+        $s.append($CODE_TEXT.text);
+        $s.deleteCharAt(0);
+        $s.deleteCharAt($s.length() - 1);
+    };
+
+WS: [ \t\n]+ -> skip;
 NAME : [a-zA-Z][a-zA-Z0-9_]*;
 REGEX : '"' (~('"'))* '"';
-WS: [ \t\n]+ -> skip;
+CODE_TEXT: '#' (~('#'))+ '#';

@@ -11,6 +11,11 @@ public class Grammar {
     Map<String, State> states = new HashMap<>();
     List<TokenItem> tokens = new ArrayList<>();
     List<TokenItem> skipTokens = new ArrayList<>();
+    List<String> imports = new ArrayList<>();
+
+    public void addImport(String s) {
+        imports.add(s);
+    }
 
     public void setName(String s) {
         grammarName = s;

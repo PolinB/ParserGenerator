@@ -29,12 +29,15 @@ public class ParserGenerator {
 
     private StringBuilder fileText() {
         StringBuilder sb = new StringBuilder();
-        // TODO add file text
         // header
         sb.append(printString("package " + grammar.grammarName.toLowerCase() + ";\n" +
                 "\n" +
                 "import java.util.ArrayList;\n" +
                 "import java.util.List;", 0));
+
+        for (String imp : grammar.imports) {
+            sb.append(printString("import " + imp + ";", 0));
+        }
 
         sb.append("\n");
         // class
@@ -79,6 +82,11 @@ public class ParserGenerator {
                 "\t}", 0));
 
         sb.append("\n");
+
+        for (State state : grammar.states.values()) {
+            sb.append(printStateNode(state));
+            sb.append("\n");
+        }
 
         sb.append(printString("private CalculatorLexicalAnalyzer lexicalAnalyzer;", 1));
 
@@ -130,12 +138,25 @@ public class ParserGenerator {
         return sb;
     }
 
+    private StringBuilder printStateNode(State s) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(printString("public class Node_" + s.getName() + " extends Node {", 1));
+        sb.append(printString("Node_" + s.getName() + "() {", 2));
+        sb.append(printString("super(\"" + s.getName() + "\");", 3));
+        sb.append(printString("}", 2));
+        for (String str : s.getParameters()) {
+            sb.append(printString("public " + str + ";", 2));
+        }
+        sb.append(printString("}", 1));
+        return sb;
+    }
+
     private StringBuilder printState(State s) {
         existEpsilonInRules = false;
         StringBuilder sb = new StringBuilder();
 
         sb.append(printString("private Node _" + s.getName() + "() {", 1));
-        sb.append(printString("Node res = new Node(\"" + s.getName() + "\");", 2));
+        sb.append(printString("Node res = new Node_" + s.getName() + "();", 2));
         sb.append(printString("switch (lexicalAnalyzer.getCurrentToken()) {", 2));
 
         for (Rule rule : s.rules) {

@@ -33,6 +33,24 @@ public interface GrammarForGenerateVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitHeader(GrammarForGenerateParser.HeaderContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link GrammarForGenerateParser#imports}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitImports(GrammarForGenerateParser.ImportsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link GrammarForGenerateParser#import_line}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitImport_line(GrammarForGenerateParser.Import_lineContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link GrammarForGenerateParser#import_name}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitImport_name(GrammarForGenerateParser.Import_nameContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link GrammarForGenerateParser#tokens}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -69,9 +87,27 @@ public interface GrammarForGenerateVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitState_line(GrammarForGenerateParser.State_lineContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link GrammarForGenerateParser#parameters_state}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitParameters_state(GrammarForGenerateParser.Parameters_stateContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link GrammarForGenerateParser#rule_line}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitRule_line(GrammarForGenerateParser.Rule_lineContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link GrammarForGenerateParser#parameters_rule}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitParameters_rule(GrammarForGenerateParser.Parameters_ruleContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link GrammarForGenerateParser#code_block}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCode_block(GrammarForGenerateParser.Code_blockContext ctx);
 }
